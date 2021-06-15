@@ -1,14 +1,23 @@
-FROM node:carbon
-WORKDIR /usr/src/app
-ARG GIT_TOKEN
+FROM node:12-buster-slim
 
-COPY .npmrc ./
-COPY package.json package-lock.json ./
-RUN npm install
-RUN rm -f .npmrc
+WORKDIR /app
 
-# Add your source files
-COPY . .
-EXPOSE 3000
+COPY package.json package-lock.json /app/
+
+RUN npm install && \
+    rm -rf /tmp/* /var/tmp/*
+
+COPY ./docker-utils/entrypoint/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+COPY . /app
+
 RUN npm run build
-cmd npm run start:dev
+
+EXPOSE 3000
+
+USER node
+
+ENV TYPEORM_MIGRATION=ENABLE
+ENV NPM_INSTALL=ENABLE
+
+CMD npm run start:prod

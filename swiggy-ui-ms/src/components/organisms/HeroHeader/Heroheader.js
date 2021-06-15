@@ -19,8 +19,11 @@ import SearchBar from '../../atoms/SearchBar';
 import LoginDrawer from '../../organisms/LoginDrawer';
 import RegisterDrawer from '../../organisms/RegisterDrawer';
 import Feature from '../../organisms/Feature';
+import { useSelector } from  'react-redux';
 
 const HeroHeader = ({ props }) => {
+	const isLoggedIn = useSelector(state => state.authentication.loggedIn);
+	// alert(isLoggedIn);
 	return (
 		<Div className="container-fluid">
 			<div className="row">
@@ -113,10 +116,10 @@ const HeroHeader = ({ props }) => {
 					</City>
 				</div>
 				{/* MAIN IMAGE */}
-				<div className="col-5">
+				<div className="col-5" style={{'padding': '0px'}}>
 					<MainImg
-						src="https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_1340/Dinner1-new_s93yyf"
-						height="450px"
+						src="https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_1340/Breakfast1-new_q6cje7"
+						height="570px" width="100%"
 						alt="swiggy main"
 					/>
 				</div>

@@ -5,9 +5,10 @@ import Drawer from '@material-ui/core/Drawer';
 import styled from 'styled-components';
 import TextField from '@material-ui/core/TextField';
 import axios from 'axios';
+import { useHistory } from "react-router-dom";
 // import env from 'react-dotenv';
 import { auth} from '../../../firebase/firebase';
-
+import { useSelector, useDispatch} from 'react-redux';
 const Div = styled.div`font-family: sans-serif;`;
 
 const useStyles = makeStyles({
@@ -19,7 +20,11 @@ const useStyles = makeStyles({
     }
 });
 
-export default function LoginDrawer() {
+export default function AuthLoginDrawer() {
+    const isLoggedIn = useSelector(state => state.authentication.loggedIn);
+    const dispatch = useDispatch();
+    let history = useHistory();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -29,10 +34,19 @@ export default function LoginDrawer() {
     });
 
     const handleSubmit = () => {
-        auth.signInWithEmailAndPassword(email, password).catch(error => {
-               setError("Error signing in with password and email!");
+        auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          setState({ ...state, right: false });
+          setError('');
+        })
+        .catch(error => {
+               setError(error.message);
               console.error("Error signing in with password and email", error);
-        });
+        })
+    }
+    const logout = () => {
+        auth.signOut();
+        dispatch({type: 'LOGOUT'});
     }
 
     const toggleDrawer = (anchor, open) => (event) => {
@@ -40,7 +54,11 @@ export default function LoginDrawer() {
             return;
         }
         setState({ ...state, [anchor]: open });
+        setError('');
     };
+    const Navigate = () => {
+      history.push('/restaurant')
+    }
 
     const list = (anchor) => (
         <div
@@ -90,7 +108,8 @@ export default function LoginDrawer() {
                                             variant="outlined"
                                             style={{
                                                 marginLeft: '0px',
-                                                borderRadius: '0px'
+                                                borderRadius: '0px',
+                                                marginTop: '15px'
                                             }}
                                             onChange={(e) => {
                                                 setEmail(e.target.value);
@@ -106,12 +125,16 @@ export default function LoginDrawer() {
                                             variant="outlined"
                                             style={{
                                                 marginLeft: '0px',
-                                                borderRadius: '0px'
+                                                borderRadius: '0px',
+                                                marginTop: '15px'
                                             }}
                                             onChange={(e) => {
                                                 setPassword(e.target.value);
                                             }}
                                         />
+                                    </div>
+                                    <div className='col-lg-12 text-center'>
+                                      {error}
                                     </div>
                                     <div className='col-lg-12 text-center'>
                                         <button
@@ -146,13 +169,20 @@ export default function LoginDrawer() {
 
     return (
         <div>
-            <button
+            { !isLoggedIn && <button
                 type="button"
                 className=" btn btn-lg align-self-center font-weight-bold"
                 onClick={toggleDrawer('right', true)}
             >
                 {'Login'}
-            </button>
+            </button> }
+            { isLoggedIn && <button
+                type="button"
+                className=" btn btn-lg  font-weight-bold"
+                onClick={logout}
+            >
+                {'Logout'}
+            </button> }
             <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
                 {list('right')}
             </Drawer>
